@@ -26,8 +26,9 @@ We cleaned the dataset, trained regression models, built a backend REST API usin
   2. **Random Forest Regressor** *(Selected as the best model and saved)*
 
 
-##  Project Structure
+## Project Structure
 
+```text
 house-price-project/
 ├── backend/
 │   ├── models/
@@ -42,12 +43,11 @@ house-price-project/
 ├── .gitignore
 └── README.md
 
-
 How to Run the Project Locally
 1. Run the Backend
 Navigate to the backend directory and start the server:
-cd backend
-python -m uvicorn main:app --reload
+1-cd backend
+2-python -m uvicorn main:app --reload
 
 
 
