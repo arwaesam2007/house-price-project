@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Predictor</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { text-align: center; color: #1a73e8; margin-top: 0; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333; }
+        input, select { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+        button { width: 100%; padding: 0.85rem; background: #1a73e8; color: white; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #1557b0; }
+        .result { margin-top: 1.5rem; padding: 1rem; border-radius: 6px; text-align: center; font-size: 1.2rem; font-weight: bold; display: none; }
+        .success { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
+        .error { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>🏠 House Price Predictor</h2>
+    <form id="predictForm">
+        <div class="form-group">
+            <label for="area">Carpet Area (sqft)</label>
+            <input type="number" id="area" placeholder="e.g. 1000" required min="10">
+        </div>
+        
+        <div class="form-group">
+            <label for="floor">Floor Number</label>
+            <input type="number" id="floor" placeholder="e.g. 3" required min="0">
+        </div>
+
+        <div class="form-group">
+            <label for="location">Location</label>
+            <select id="location" required>
+                <option value="">Loading locations...</option>
+            </select>
+        </div>
+
+        <button type="submit">Predict Price</button>
+    </form>
+
+    <div id="resultBox" class="result"></div>
+</div>
+
+<script>
+    const API_BASE = "http://127.0.0.1:8000";
+
+    // Load Locations on startup
+    async function loadLocations() {
+        const select = document.getElementById("location");
+        try {
+            const response = await fetch(`${API_BASE}/locations`);
+            const data = await response.json();
+            select.innerHTML = '<option value="">Select a location</option>';
+            data.locations.forEach(loc => {
+                const opt = document.createElement("option");
+                opt.value = loc;
+                opt.textContent = loc;
+                select.appendChild(opt);
+            });
+        } catch (err) {
+            select.innerHTML = '<option value="other">other</option>';
+        }
+    }
+
+    // Submit Form
+    document.getElementById("predictForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const resultBox = document.getElementById("resultBox");
+        resultBox.style.display = "none";
+
+        const payload = {
+            carpet_area_sqft: parseFloat(document.getElementById("area").value),
+            floor_num: parseInt(document.getElementById("floor").value),
+            location: document.getElementById("location").value
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/predict`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                resultBox.className = "result success";
+                resultBox.innerHTML = `Predicted Price:<br>₹ ${data.predicted_price.toLocaleString()}`;
+            } else {
+                throw new Error(data.detail || "Prediction failed");
+            }
+        } catch (err) {
+            resultBox.className = "result error";
+            resultBox.textContent = `Error: ${err.message}`;
+        }
+        resultBox.style.display = "block";
+    });
+
+    loadLocations();
+</script>
+
+</body>
+</html>
