@@ -1,7 +1,7 @@
 **House Price Prediction Project**
 
 **Project Team:**
-- [Arwa Essam Ramadan Al_Ayouti]
+- [Arwa Essam Ramadan Wahba Al_Ayouti]
 - [Aya Gamal Talaat Gamal Ragab]
 
 #  Project Overview
